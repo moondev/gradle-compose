@@ -1,0 +1,49 @@
+
+  repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+
+  dependencies {
+    classpath "gradle.plugin.com.chrisgahlert:gradle-dcompose-plugin:0.3.2"
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: "com.chrisgahlert.gradle-dcompose-plugin"
+
+sourceCompatibility = 1.8
+
+dcompose {
+  dockerClientConfig = {
+    withDockerHost 'tcp://127.0.0.1:2376'
+    withApiVersion '1.23'
+    withDockerTlsVerify 'false'
+  }
+
+  database {
+    image = 'busybox:1.24.2'   // Required
+
+    command = ['sleep', '300'] // Optional, if provided by image
+  }
+   
+  }
+
+
+test {
+  dependsOn createDatabaseContainer
+  finalizedBy removeDatabaseContainer
+}
